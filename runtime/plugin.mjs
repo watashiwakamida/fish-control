@@ -1,6 +1,6 @@
 import {join} from 'node:path';
 import {home,policy,atomic,readJson} from './policy.mjs';
-import {createPublicChat} from './public-chat.mjs?v=3';
+import {createPublicChat} from './public-chat.mjs?v=4';
 export const name='fish-control';export const inject=['llm','agents'];
 export function apply(ctx){
  const social=createPublicChat(ctx);let previous=policy();

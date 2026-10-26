@@ -5,7 +5,7 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import {createHash} from 'node:crypto';
 import {root,home,policyFile,atomic,readJson} from './runtime/policy.mjs';
 const here=dirname(fileURLToPath(import.meta.url)),profile=join(home,'profiles/web/cordis.patch.yml');
-const marker='companion-fish-control-v3',oldProfile=readFileSync(profile,'utf8');
+const marker='companion-fish-control-v4',oldProfile=readFileSync(profile,'utf8');
 if(oldProfile.includes('id: companion-fish-control-')){console.log('Already installed; no files overwritten. Read HANDOFF before upgrading adapters.');process.exit(0);}
 const backup=join(root,'backups','fish-control-'+new Date().toISOString().replace(/[:.]/g,'-'));mkdirSync(backup,{recursive:true});
 function replaceOnce(s,from,to){if(s.split(from).length!==2)throw Error('Adapter baseline mismatch: '+from.slice(0,50));return s.replace(from,to);}
@@ -48,7 +48,7 @@ for(const [oldId,newId,oldFile,newFile] of [
  ['companion-bili-autonomy-v3','companion-bili-autonomy-v4','companion-bili-autonomy-v3.mjs','companion-bili-autonomy-v4.mjs'],
  ['companion-tool-policy-v2','companion-tool-policy-v3','companion-tool-policy-v2.mjs','companion-tool-policy-v3.mjs']
 ]){nextProfile=replaceOnce(nextProfile,'- id: '+oldId,'- id: '+newId);nextProfile=replaceOnce(nextProfile,oldFile,newFile);}
-nextProfile+=`\n- insert:\n    - id: ${marker}\n      name: ${pathToFileURL(join(here,'runtime/plugin.mjs')).href}?v=3\n- insert:\n    - id: fish-owner-mention-v1\n      name: ${pathToFileURL(join(here,'runtime/manual-mention.mjs')).href}\n`;
+nextProfile+=`\n- insert:\n    - id: ${marker}\n      name: ${pathToFileURL(join(here,'runtime/plugin.mjs')).href}?v=4\n- insert:\n    - id: fish-owner-mention-v1\n      name: ${pathToFileURL(join(here,'runtime/manual-mention.mjs')).href}\n`;
 // All expected anchors were checked before making runtime changes.
 copyFileSync(profile,join(backup,'cordis.patch.yml'));
 const manifest=[];

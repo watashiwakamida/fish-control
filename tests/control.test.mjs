@@ -3,6 +3,10 @@ import {mkdtempSync,mkdirSync,readFileSync} from 'node:fs';import {tmpdir} from 
 const fixture=mkdtempSync(join(tmpdir(),'fish-control-test-'));process.env.DSH_HOME=fixture;process.env.FISH_ROOT=fixture;
 const {policy,policyFile,atomic,accepts,fresh}=await import('../runtime/policy.mjs');
 const {createPublicChat,contextKey,buildMessages}=await import('../runtime/public-chat.mjs');
+const {messageSegments}=await import('../runtime/public-chat.mjs');
+const {budgetStatus,cutoff}=await import('../runtime/budget-status.mjs');
+test('budget status matches existing reservation and cutoff without changing ledger',()=>{const b={estimatedCny:38.89,limitCny:40,unsettled:{}};assert.equal(budgetStatus(b,cutoff-1000).blocked,true);assert.equal(budgetStatus({...b,estimatedCny:1},cutoff).blocked,true);assert.equal(b.estimatedCny,38.89);});
+test('QQ null and CQ-string messages normalize without breaking intake',()=>{assert.deepEqual(messageSegments(null),[]);assert.equal(messageSegments('[CQ:at,qq=9]hello')[1].data.qq,'9');assert.equal(messageSegments([null,{type:'text',data:{text:'hi'}}]).length,1);});
 test('closed/owner-only/open authorization matrix and fail closed',()=>{
  assert.equal(policy().enabled,false);
  for(const enabled of [false,true])for(const open of [false,true]){

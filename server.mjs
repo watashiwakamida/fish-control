@@ -5,10 +5,11 @@ import {join,dirname} from 'node:path';
 import {spawn} from 'node:child_process';
 import {randomBytes} from 'node:crypto';
 import {root,home,policy,policyFile,atomic,readJson} from './runtime/policy.mjs';
+import {budgetStatus} from './runtime/budget-status.mjs';
 const here=dirname(fileURLToPath(import.meta.url));
 const port=Number(process.env.FISH_PORT||17860),origin=`http://127.0.0.1:${port}`,token=randomBytes(32).toString('hex');
 let starting=false;
-function status(){const p=policy(),r=readJson(join(home,'fish-control-runtime.json'),{});const comments=['fish-public-bili.json','bili-dialogue-transport.json'].flatMap(f=>Object.values(readJson(join(home,f),{}).items||{})).filter(x=>x.kind==='comment'&&x.receipt&&x.publicVisible===false);return {enabled:p.enabled,open:p.open,revision:p.revision||0,runtime:Date.now()-(r.at||0)<10000,appliedRevision:r.revision,starting,public:r.public||{},commentVisibilityWarning:comments.length>0,budget:readJson(join(home,'companion-budget.json'),{}).estimatedCny,cutoff:'2026-11-01 00:00（北京时间）',version:'0.1.0'};}
+function status(){const p=policy(),r=readJson(join(home,'fish-control-runtime.json'),{});const comments=['fish-public-bili.json','bili-dialogue-transport.json'].flatMap(f=>Object.values(readJson(join(home,f),{}).items||{})).filter(x=>x.kind==='comment'&&x.receipt&&x.publicVisible===false);return {enabled:p.enabled,open:p.open,revision:p.revision||0,runtime:Date.now()-(r.at||0)<10000,appliedRevision:r.revision,starting,public:r.public||{},commentVisibilityWarning:comments.length>0,budgetStatus:budgetStatus(readJson(join(home,'companion-budget.json'),null)),budget:readJson(join(home,'companion-budget.json'),{}).estimatedCny,cutoff:'2026-11-01 00:00（北京时间）',version:'0.1.0'};}
 function startBackend(){if(starting||status().runtime)return;starting=true;const child=spawn('powershell.exe',['-NoProfile','-ExecutionPolicy','Bypass','-File',join(root,'Start-Companion.ps1')],{windowsHide:true,stdio:'ignore'});child.once('error',()=>{starting=false;});child.once('close',()=>{starting=false;});}
 export function validRequest(req){return req.headers.host===`127.0.0.1:${port}`&&(!req.headers.origin||req.headers.origin===origin);}
 const server=http.createServer(async(req,res)=>{

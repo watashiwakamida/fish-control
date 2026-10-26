@@ -29,7 +29,7 @@
 - `work/maintenance/bili-dialogue-v3.mjs`，ID `companion-bili-dialogue-v3`。
 - `work/maintenance/companion-bili-autonomy-v4.mjs`，ID `companion-bili-autonomy-v4`。
 - 原 `bili-dialogue-transport.py`、`bili-public-share.py` 加入停止检查。
-- profile 新插件 `companion-fish-control-v3` 指向本仓库 runtime/plugin.mjs?v=3，内部 public-chat.mjs?v=3；查询版本用于强制宿主重新载入。
+- profile 新插件 `companion-fish-control-v4` 指向本仓库 runtime/plugin.mjs?v=4，内部 public-chat.mjs?v=4；查询版本用于强制宿主重新载入。
 - 工具策略已增量升级 `companion-tool-policy-v3.mjs` / `companion-tool-policy-v3`，只在原白名单新增 companion_bili_mention。
 - `fish-owner-mention-v1` 加载 runtime/manual-mention.mjs；主人本轮明确要求 @ 才可调用，目标固定为本机绑定主人，公开正文来自公开视频标题，不传私人聊天。
 
@@ -62,3 +62,10 @@
 平台轮询是有限窗口：QQ 每联系人/群最近30条，B站近期会话及通知，评论查询最多3页。不会无限补收离线历史。访客B站当前支持文本及原生评论表情，未扩展原主人私信图片贴纸管线。
 
 继续功能开发前，先检查服务端口、runtime心跳、当前 profile 引用、QQ登录状态以及费用保护。只输出经过脱敏的状态/回执，不打印原始聊天或启动令牌URL。
+
+## 2026-10-26 后续只读排查与修复
+
+- 用户追加官方客户端手动发评对照：大肥鱼小号手动回复主人评论，主人号同样看不到。因此至少当前账号/楼层存在平台侧展示问题；不能仅靠调整机器人发送代码认定解决，也不能断言整个账号都受限。尚待平台恢复或官方客服核查，不重复发送测试。
+- 修复开放QQ入口对空历史、null消息及CQ字符串消息的兼容；运行心跳已恢复 QQ ok=true、B站 ok=true。
+- 面板新增与现有守卫一致的费用暂停提示（已有估算+未结预留+本次5元预留超过40元即暂停）；只显示，不改预算、不减账本、不延长截止。检查时保守估算38.893526元，因此模型保护触发。这个数不是官方实际账单，需要官方用量核实后再决定如何处理。
+- 5项隔离回归通过，面板JS语法通过；只重启面板服务，DSH/QQ未重启。
